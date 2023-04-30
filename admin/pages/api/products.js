@@ -26,4 +26,24 @@ export default async function handler(req, res) {
 		});
 		res.status(200).json(product);
 	}
+
+	if (method === 'PUT') {
+		const { productName, productDescription, productPrice, _id } = req.body;
+		const product = await Product.updateOne(
+			{ _id },
+			{
+				productName,
+				productDescription,
+				productPrice,
+			}
+		);
+		res.status(200).json(product);
+	}
+
+	if (method === 'DELETE') {
+		if (req.query?.id) {
+			await Product.deleteOne({ _id: req.query?.id });
+			res.status(200).json(true);
+		}
+	}
 }

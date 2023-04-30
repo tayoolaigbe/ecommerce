@@ -2,28 +2,42 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-const ProductForm = () => {
-	const [productName, setProductName] = useState('');
-	const [productDescription, setProductDescription] = useState('');
-	const [productPrice, setProductPrice] = useState('');
+const ProductForm = ({
+	_id,
+	productName: existingName,
+	productDescription: existingDescription,
+	productPrice: existingPrice,
+}) => {
+	const [productName, setProductName] = useState(existingName || '');
+	const [productDescription, setProductDescription] = useState(
+		existingDescription || ''
+	);
+	const [productPrice, setProductPrice] = useState(existingPrice || '');
 
 	const [goToProducts, setGoToProducts] = useState(false);
 
 	const router = useRouter();
 
-	const createProduct = async event => {
+	const saveProduct = async event => {
 		event.preventDefault();
 		const data = { productName, productDescription, productPrice };
-		await axios.post('/api/products', data);
-		setGoToProducts(true);
 
-		if (goToProducts) {
-			router.push('/products');
+		if (_id) {
+			// update product
+			await axios.put('/api/products', { ...data, _id });
+		} else {
+			// create product
+			await axios.post('/api/products', data);
 		}
+		setGoToProducts(true);
 	};
+
+	if (goToProducts) {
+		router.push('/products');
+	}
+
 	return (
-		<form onSubmit={createProduct}>
-			<h1>New Product</h1>
+		<form onSubmit={saveProduct}>
 			<label>Product name</label>
 			<input
 				value={productName}
